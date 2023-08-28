@@ -87,7 +87,15 @@ namespace CrossElementsPosition
         #region Получение положения поперечных элементов
         public void GetCrossElementsPosition()
         {
+            foreach (var block in BlockElements)
+            {
+                double distance = RevitGeometryUtils.GetDistanceBetweenElements(block, MarkupElements.First(), Doc);
+            }
 
+            //foreach(var markup in MarkupElements)
+            //{
+            //    double distance = RevitGeometryUtils.GetDistanceBetweenElements(BlockElements.First(), markup, Doc);
+            //}
         }
         #endregion
     }

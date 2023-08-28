@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace CrossElementsPosition.Models
 {
@@ -80,6 +81,45 @@ namespace CrossElementsPosition.Models
                          .ToList();
 
             return elemIds;
+        }
+
+        public static double GetDistanceBetweenElements(Element blockElem, Element markupElem, Document doc)
+        {
+            // Получение центральной точки для блока
+            Line blockAxis = GetBlockAxis(doc, blockElem);
+            XYZ blockCentralPoint = blockAxis.Evaluate(0.5, true);
+
+            // Получение центральной точки для элемента разметки
+            var markupLocation = markupElem.Location as LocationCurve;
+            Curve markupCurve = markupLocation.Curve;
+            XYZ markupCentralPoint = markupCurve.Evaluate(0.5, true);
+
+            using(Transaction trans = new Transaction(doc, "Create Test Points"))
+            {
+                trans.Start();
+                doc.FamilyCreate.NewReferencePoint(blockCentralPoint);
+                trans.Commit();
+            }
+
+            return blockCentralPoint.DistanceTo(markupCentralPoint);
+        }
+
+        private static Line GetBlockAxis(Document doc, Element blockElem)
+        {
+            var blockAdaptivePoints = AdaptiveComponentInstanceUtils.GetInstancePlacementPointElementRefIds(blockElem as FamilyInstance);
+            var firstReferencePoint = doc.GetElement(blockAdaptivePoints.FirstOrDefault()) as ReferencePoint;
+            var secondReferencePoint = doc.GetElement(blockAdaptivePoints.ElementAt(1)) as ReferencePoint;
+            XYZ firstPoint = firstReferencePoint.Position;
+            XYZ secondPoint = secondReferencePoint.Position;
+
+            XYZ alongVector = (secondPoint - firstPoint).Normalize();
+            Parameter lengthParameter = blockElem.LookupParameter("Длина блока");
+            double length = lengthParameter.AsDouble();
+            XYZ secondBlockCurvePoint = firstPoint + alongVector * length;
+
+            Line blockAxis = Line.CreateBound(firstPoint, secondBlockCurvePoint);
+
+            return blockAxis;
         }
     }
 }
