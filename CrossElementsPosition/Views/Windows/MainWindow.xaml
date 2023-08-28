@@ -10,7 +10,7 @@
         Background="#f0f0f0"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Height="450"
+        Height="245"
         Width="350">
     <Window.DataContext>
         <vm:MainWindowViewModel />
@@ -68,6 +68,43 @@
         </Style>
     </Window.Resources>
     <StackPanel>
-        
+        <GroupBox Header="Блоки пролетного строения"
+                  Style="{StaticResource BorderGroupStyle}">
+            <UniformGrid Columns="2">
+                <UniformGrid Rows="2">
+                    <TextBlock Text="Блоки"
+                               Style="{StaticResource TextAboveButton}" />
+                    <Button Style="{StaticResource SelectButton}"
+                            Command="{Binding GetBlockElementsCommand}" />
+                </UniformGrid>
+                <TextBox Text="{Binding BlockElementIds}"
+                         Style="{StaticResource SelectedItemsBox}" />
+            </UniformGrid>
+        </GroupBox>
+        <GroupBox Header="Разметка"
+                  Style="{StaticResource BorderGroupStyle}">
+            <UniformGrid Columns="2">
+                <UniformGrid Rows="2">
+                    <TextBlock Text="Элементы разметки"
+                               Style="{StaticResource TextAboveButton}" />
+                    <Button Style="{StaticResource SelectButton}"
+                            Command="{Binding GetBlockElementsCommand}" />
+                </UniformGrid>
+                <TextBox Text="{Binding BlockElementIds}"
+                         Style="{StaticResource SelectedItemsBox}" />
+            </UniformGrid>
+        </GroupBox>
+        <GroupBox Header="Изменение"
+                  Style="{StaticResource BorderGroupStyle}">
+            <UniformGrid Columns="2"
+                         Margin="0,12,0,5">
+                <Button Content="Изменить"
+                        Style="{StaticResource SelectButton}"
+                        Command="{Binding ChangeBlocksOrientationCommand}" />
+                <Button Content="Отмена"
+                        Style="{StaticResource SelectButton}"
+                        Command="{Binding CloseWindowCommand}" />
+            </UniformGrid>
+        </GroupBox>
     </StackPanel>
 </Window>
