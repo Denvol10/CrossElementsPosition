@@ -11,6 +11,7 @@ using Autodesk.Revit.UI.Selection;
 using Autodesk.Revit.DB.Architecture;
 using System.Collections.ObjectModel;
 using CrossElementsPosition.Models;
+using CrossElementsPosition.Models.Filters;
 
 namespace CrossElementsPosition
 {
@@ -41,7 +42,7 @@ namespace CrossElementsPosition
 
         public void GetBlockElementsBySelection()
         {
-            BlockElements = RevitGeometryUtils.GetElementsBySelection(Uiapp, out _blockElementIds);
+            BlockElements = RevitGeometryUtils.GetElementsBySelection(Uiapp, new GenericModelCategoryFilter(), out _blockElementIds);
         }
         #endregion
 
@@ -60,5 +61,20 @@ namespace CrossElementsPosition
             BlockElements = RevitGeometryUtils.GetBlocksById(Doc, elemIds);
         }
 
+        #region Элементы разметки
+        public List<Element> MarkupElements { get; set; }
+
+        private string _markupElementIds;
+        public string MarkupElementIds
+        {
+            get => _markupElementIds;
+            set => _markupElementIds = value;
+        }
+
+        public void GetMarkupElementsBySelection()
+        {
+            MarkupElements = RevitGeometryUtils.GetElementsBySelection(Uiapp, new FurnitureCategoryFilter(), out _markupElementIds);
+        }
+        #endregion
     }
 }

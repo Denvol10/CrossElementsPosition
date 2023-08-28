@@ -13,10 +13,10 @@ namespace CrossElementsPosition.Models
     public class RevitGeometryUtils
     {
         // Получение блоков пролетного строения с помощью пользовательского выбора
-        public static List<Element> GetElementsBySelection(UIApplication uiapp, out string elementIds)
+        public static List<Element> GetElementsBySelection(UIApplication uiapp, ISelectionFilter filter, out string elementIds)
         {
             Selection sel = uiapp.ActiveUIDocument.Selection;
-            var pickedElems = sel.PickElementsByRectangle(new GenericModelCategoryFilter(), "Select Blocks");
+            var pickedElems = sel.PickElementsByRectangle(filter, "Select Blocks");
             elementIds = ElementIdToString(pickedElems);
 
             return pickedElems.ToList();

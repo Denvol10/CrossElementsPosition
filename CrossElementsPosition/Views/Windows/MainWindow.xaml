@@ -88,9 +88,9 @@
                     <TextBlock Text="Элементы разметки"
                                Style="{StaticResource TextAboveButton}" />
                     <Button Style="{StaticResource SelectButton}"
-                            Command="{Binding GetBlockElementsCommand}" />
+                            Command="{Binding GetMarkupElementsCommand}" />
                 </UniformGrid>
-                <TextBox Text="{Binding BlockElementIds}"
+                <TextBox Text="{Binding MarkupElementIds}"
                          Style="{StaticResource SelectedItemsBox}" />
             </UniformGrid>
         </GroupBox>

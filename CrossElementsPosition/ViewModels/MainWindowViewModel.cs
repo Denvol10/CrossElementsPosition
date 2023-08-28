@@ -44,6 +44,15 @@ namespace CrossElementsPosition.ViewModels
         }
         #endregion
 
+        #region Элементы разметки
+        private string _markupElementIds;
+        public string MarkupElementIds
+        {
+            get => _markupElementIds;
+            set => Set(ref _markupElementIds, value);
+        }
+        #endregion
+
         #region Команды
 
         #region Получение блоков пролетного строения
@@ -58,6 +67,23 @@ namespace CrossElementsPosition.ViewModels
         }
 
         private bool CanGetBlockElementsCommandExecute(object parameter)
+        {
+            return true;
+        }
+        #endregion
+
+        #region Получение элементов разметки
+        public ICommand GetMarkupElementsCommand { get; }
+
+        private void OnGetMarkupElementsCommandExecute(object parameter)
+        {
+            RevitCommand.mainView.Hide();
+            RevitModel.GetMarkupElementsBySelection();
+            MarkupElementIds = RevitModel.MarkupElementIds;
+            RevitCommand.mainView.ShowDialog();
+        }
+
+        private bool CanGetMarkupElementsCommandExecuted(object parameter)
         {
             return true;
         }
@@ -110,6 +136,7 @@ namespace CrossElementsPosition.ViewModels
 
             #region Команды
             GetBlockElementsCommand = new LambdaCommand(OnGetBlockElementsCommandExecuted, CanGetBlockElementsCommandExecute);
+            GetMarkupElementsCommand = new LambdaCommand(OnGetMarkupElementsCommandExecute, CanGetMarkupElementsCommandExecuted);
             CloseWindowCommand = new LambdaCommand(OnCloseWindowCommandExecuted, CanCloseWindowCommandExecute);
             #endregion
         }
