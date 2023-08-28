@@ -54,17 +54,17 @@ namespace CrossElementsPosition.Models
         }
 
         // Получение блоков по их id
-        public static List<Element> GetBlocksById(Document doc, IEnumerable<int> ids)
+        public static List<Element> GetElementsById(Document doc, IEnumerable<int> ids)
         {
-            var blocks = new List<Element>();
+            var elems = new List<Element>();
             foreach (var id in ids)
             {
                 ElementId elemId = new ElementId(id);
                 Element block = doc.GetElement(elemId);
-                blocks.Add(block);
+                elems.Add(block);
             }
 
-            return blocks;
+            return elems;
         }
 
         // Получение id элементов на основе списка в виде строки

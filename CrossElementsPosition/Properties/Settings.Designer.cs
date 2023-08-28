@@ -34,5 +34,17 @@ namespace CrossElementsPosition.Properties {
                 this["BlockElementIds"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MarkupElementIds {
+            get {
+                return ((string)(this["MarkupElementIds"]));
+            }
+            set {
+                this["MarkupElementIds"] = value;
+            }
+        }
     }
 }

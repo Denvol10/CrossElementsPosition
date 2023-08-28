@@ -109,6 +109,7 @@ namespace CrossElementsPosition.ViewModels
         private void SaveSettings()
         {
             Properties.Settings.Default.BlockElementIds = BlockElementIds;
+            Properties.Settings.Default.MarkupElementIds = MarkupElementIds;
             Properties.Settings.Default.Save();
         }
 
@@ -124,10 +125,22 @@ namespace CrossElementsPosition.ViewModels
             if (!(Properties.Settings.Default.BlockElementIds is null))
             {
                 string blockElemIdsInSettings = Properties.Settings.Default.BlockElementIds;
-                if (RevitModel.IsBlocksExistInModel(blockElemIdsInSettings) && !string.IsNullOrEmpty(blockElemIdsInSettings))
+                if (RevitModel.IsElementsExistInModel(blockElemIdsInSettings) && !string.IsNullOrEmpty(blockElemIdsInSettings))
                 {
                     BlockElementIds = blockElemIdsInSettings;
                     RevitModel.GetBlocksBySettings(blockElemIdsInSettings);
+                }
+            }
+            #endregion
+
+            #region Инициализация элементов разметки
+            if (!(Properties.Settings.Default.MarkupElementIds is null))
+            {
+                string markupElemIdsInSettings = Properties.Settings.Default.MarkupElementIds;
+                if(RevitModel.IsElementsExistInModel(markupElemIdsInSettings) && !string.IsNullOrEmpty(markupElemIdsInSettings))
+                {
+                    MarkupElementIds = markupElemIdsInSettings;
+                    RevitModel.GetMarkupElementsBySettings(markupElemIdsInSettings);
                 }
             }
             #endregion

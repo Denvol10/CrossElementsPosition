@@ -47,7 +47,7 @@ namespace CrossElementsPosition
         #endregion
 
         // Проверка на то существуют ли блоки в модели
-        public bool IsBlocksExistInModel(string elemIdsInSettings)
+        public bool IsElementsExistInModel(string elemIdsInSettings)
         {
             var elemIds = RevitGeometryUtils.GetIdsByString(elemIdsInSettings);
 
@@ -58,7 +58,7 @@ namespace CrossElementsPosition
         public void GetBlocksBySettings(string elemIdsInSettings)
         {
             var elemIds = RevitGeometryUtils.GetIdsByString(elemIdsInSettings);
-            BlockElements = RevitGeometryUtils.GetBlocksById(Doc, elemIds);
+            BlockElements = RevitGeometryUtils.GetElementsById(Doc, elemIds);
         }
 
         #region Элементы разметки
@@ -76,5 +76,12 @@ namespace CrossElementsPosition
             MarkupElements = RevitGeometryUtils.GetElementsBySelection(Uiapp, new FurnitureCategoryFilter(), out _markupElementIds);
         }
         #endregion
+
+        // Получение элементов разметки из Settings
+        public void GetMarkupElementsBySettings(string elemIdsInSettings)
+        {
+            var elemIds = RevitGeometryUtils.GetIdsByString(elemIdsInSettings);
+            MarkupElements = RevitGeometryUtils.GetElementsById(Doc, elemIds);
+        }
     }
 }
