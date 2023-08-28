@@ -38,7 +38,20 @@ namespace CrossElementsPosition.ViewModels
 
         #region Команды
 
+        #region Закрыть окно
+        public ICommand CloseWindowCommand { get; }
 
+        private void OnCloseWindowCommandExecuted(object parameter)
+        {
+            //SaveSettings();
+            RevitCommand.mainView.Close();
+        }
+
+        private bool CanCloseWindowCommandExecute(object parameter)
+        {
+            return true;
+        }
+        #endregion
 
         #endregion
 
@@ -49,7 +62,7 @@ namespace CrossElementsPosition.ViewModels
             RevitModel = revitModel;
 
             #region Команды
-
+            CloseWindowCommand = new LambdaCommand(OnCloseWindowCommandExecuted, CanCloseWindowCommandExecute);
             #endregion
         }
 
