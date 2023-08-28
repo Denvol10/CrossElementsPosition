@@ -89,6 +89,27 @@ namespace CrossElementsPosition.ViewModels
         }
         #endregion
 
+        #region Получение позиции поперечных элементов
+        public ICommand GetCrossElementsPositionCommand { get; }
+
+        private void OnGetCrossElementsPositionCommandExecuted(object parameter)
+        {
+            RevitModel.GetCrossElementsPosition();
+            SaveSettings();
+            RevitCommand.mainView.Close();
+        }
+
+        private bool CanGetCrossElementsPositionCommandExecute(object parameter)
+        {
+            if(string.IsNullOrEmpty(BlockElementIds) || string.IsNullOrEmpty(MarkupElementIds))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
+
         #region Закрыть окно
         public ICommand CloseWindowCommand { get; }
 
@@ -150,6 +171,7 @@ namespace CrossElementsPosition.ViewModels
             #region Команды
             GetBlockElementsCommand = new LambdaCommand(OnGetBlockElementsCommandExecuted, CanGetBlockElementsCommandExecute);
             GetMarkupElementsCommand = new LambdaCommand(OnGetMarkupElementsCommandExecute, CanGetMarkupElementsCommandExecuted);
+            GetCrossElementsPositionCommand = new LambdaCommand(OnGetCrossElementsPositionCommandExecuted, CanGetCrossElementsPositionCommandExecute);
             CloseWindowCommand = new LambdaCommand(OnCloseWindowCommandExecuted, CanCloseWindowCommandExecute);
             #endregion
         }

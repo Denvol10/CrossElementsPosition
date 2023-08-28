@@ -100,7 +100,7 @@
                          Margin="0,12,0,5">
                 <Button Content="Изменить"
                         Style="{StaticResource SelectButton}"
-                        Command="{Binding ChangeBlocksOrientationCommand}" />
+                        Command="{Binding GetCrossElementsPositionCommand}" />
                 <Button Content="Отмена"
                         Style="{StaticResource SelectButton}"
                         Command="{Binding CloseWindowCommand}" />

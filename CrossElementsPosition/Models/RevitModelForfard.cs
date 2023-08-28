@@ -83,5 +83,12 @@ namespace CrossElementsPosition
             var elemIds = RevitGeometryUtils.GetIdsByString(elemIdsInSettings);
             MarkupElements = RevitGeometryUtils.GetElementsById(Doc, elemIds);
         }
+
+        #region Получение положения поперечных элементов
+        public void GetCrossElementsPosition()
+        {
+
+        }
+        #endregion
     }
 }
