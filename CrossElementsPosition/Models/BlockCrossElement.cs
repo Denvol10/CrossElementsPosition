@@ -14,12 +14,14 @@ namespace CrossElementsPosition.Models
         public Element BlockElement { get; set; }
         public Line BlockAxis { get; set; }
         public Element MarkupElement { get; set; }
+        public int CountCrossSection { get; set; }
 
         public BlockCrossElement(Document doc, Element blockElement, List<Element> markupElements)
         {
             BlockElement = blockElement;
             BlockAxis = RevitGeometryUtils.GetBlockAxis(doc, blockElement);
             MarkupElement = RevitGeometryUtils.GetClosestMarkupElement(doc, blockElement, markupElements);
+            CountCrossSection = GetCountCrossSection();
         }
 
         public XYZ GetBlockCentralPoint()
@@ -42,20 +44,47 @@ namespace CrossElementsPosition.Models
         {
             var points = new List<XYZ>();
             var planes = this.GetMarkupPlanes();
-            string path = @"O:\Revit Infrastructure Tools\CrossElementsPosition\CrossElementsPosition\result.txt";
-            using(StreamWriter sw = new StreamWriter(path, false, Encoding.Default))
+
+            foreach (var plane in planes)
             {
-                foreach (var plane in planes)
+                double parameter;
+                XYZ point = LinePlaneIntersection(BlockAxis, plane, out parameter);
+                points.Add(point);
+            }
+
+            return points;
+        }
+
+        public void HideUnusedCrossSection()
+        {
+            var parameters = BlockElement.Parameters;
+            var visibleParameters = new List<(Parameter Parameter, int Number)>();
+            foreach(Parameter parameter in parameters)
+            {
+                string parameterName = parameter.Definition.Name;
+                if (parameterName.Contains("Ребро") && parameterName.Contains("Видимость"))
                 {
-                    double parameter;
-                    XYZ point = LinePlaneIntersection(BlockAxis, plane, out parameter);
-                    sw.WriteLine(parameter);
-                    points.Add(point);
+                    var number = int.Parse(parameterName.Split('_').ElementAt(1));
+                    visibleParameters.Add((parameter, number));
                 }
             }
 
+            visibleParameters = visibleParameters.OrderBy(p => p.Number).ToList();
 
-            return points;
+            for(int i = visibleParameters.Count - 1; i >= CountCrossSection; i--)
+            {
+                var hideParameter = visibleParameters.ElementAt(i);
+                hideParameter.Parameter.Set(0);
+            }
+        }
+
+        private int GetCountCrossSection()
+        {
+            Options options = new Options();
+            var geometryInstance = MarkupElement.get_Geometry(options).First() as GeometryInstance;
+            var lines = geometryInstance.GetInstanceGeometry().OfType<Line>();
+
+            return lines.Count();
         }
 
         private List<Plane> GetMarkupPlanes()
@@ -80,9 +109,9 @@ namespace CrossElementsPosition.Models
             return plane;
         }
 
-         /* Пересечение линии и плоскости
-         * (преобразует линию в вектор, поэтому пересекает любую линию не параллельную плоскости)
-         */
+        /* Пересечение линии и плоскости
+        * (преобразует линию в вектор, поэтому пересекает любую линию не параллельную плоскости)
+        */
         private static XYZ LinePlaneIntersection(Line line, Plane plane, out double lineParameterNormalized)
         {
             XYZ planePoint = plane.Origin;

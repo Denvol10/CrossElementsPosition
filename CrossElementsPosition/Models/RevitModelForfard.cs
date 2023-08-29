@@ -12,6 +12,7 @@ using Autodesk.Revit.DB.Architecture;
 using System.Collections.ObjectModel;
 using CrossElementsPosition.Models;
 using CrossElementsPosition.Models.Filters;
+using System.IO;
 
 namespace CrossElementsPosition
 {
@@ -94,15 +95,20 @@ namespace CrossElementsPosition
                 blockCrossElements.Add(blockCrossElement);
             }
 
-            using(Transaction trans = new Transaction(Doc, "Test Points Created"))
+            //string path = @"O:\Revit Infrastructure Tools\CrossElementsPosition\CrossElementsPosition\result.txt";
+            //using(StreamWriter sw = new StreamWriter(path, false, Encoding.Default))
+            //{
+            //    foreach(var block in blockCrossElements)
+            //    {
+            //        sw.WriteLine(block.CountCrossSection);
+            //    }
+            //}
+
+            using (Transaction trans = new Transaction(Doc, "Test Points Created"))
             {
                 trans.Start();
                 var blockCrossElem = blockCrossElements.ElementAt(6);
-                var points = blockCrossElem.GetIntersectPointsOnBlock();
-                foreach(var point in points)
-                {
-                    Doc.FamilyCreate.NewReferencePoint(point);
-                }
+                blockCrossElem.HideUnusedCrossSection();
 
                 trans.Commit();
             }
