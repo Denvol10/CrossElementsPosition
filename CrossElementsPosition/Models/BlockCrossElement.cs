@@ -37,13 +37,64 @@ namespace CrossElementsPosition.Models
             return markupCentralPoint;
         }
 
-        public IEnumerable<Line> GetMarkupPlanes()
+        public List<XYZ> GetIntersectPointsOnBlock()
+        {
+            var points = new List<XYZ>();
+            var planes = this.GetMarkupPlanes();
+            foreach(var plane in planes)
+            {
+                XYZ point = LinePlaneIntersection(BlockAxis, plane, out _);
+                points.Add(point);
+            }
+
+            return points;
+        }
+
+        private List<Plane> GetMarkupPlanes()
         {
             Options options = new Options();
             var geometryInstance = MarkupElement.get_Geometry(options).First() as GeometryInstance;
-            var geometry = geometryInstance.GetInstanceGeometry().OfType<Line>();
+            var lines = geometryInstance.GetInstanceGeometry().OfType<Line>();
 
-            return geometry;
+            var planes = lines.Select(l => GetPlaneByLine(l)).ToList();
+
+            return planes;
+        }
+
+        private static Plane GetPlaneByLine(Line line)
+        {
+            XYZ firstPoint = line.GetEndPoint(0);
+            XYZ secondPoint = line.GetEndPoint(1);
+            XYZ thirdPoint = firstPoint + XYZ.BasisZ;
+
+            Plane plane = Plane.CreateByThreePoints(firstPoint, secondPoint, thirdPoint);
+
+            return plane;
+        }
+
+         /* Пересечение линии и плоскости
+         * (преобразует линию в вектор, поэтому пересекает любую линию не параллельную плоскости)
+         */
+        private static XYZ LinePlaneIntersection(Line line, Plane plane, out double lineParameter)
+        {
+            XYZ planePoint = plane.Origin;
+            XYZ planeNormal = plane.Normal;
+            XYZ linePoint = line.GetEndPoint(0);
+
+            XYZ lineDirection = (line.GetEndPoint(1) - linePoint).Normalize();
+
+            // Проверка на параллельность линии и плоскости
+            if ((planeNormal.DotProduct(lineDirection)) == 0)
+            {
+                lineParameter = double.NaN;
+                return null;
+            }
+
+            lineParameter = (planeNormal.DotProduct(planePoint)
+              - planeNormal.DotProduct(linePoint))
+                / planeNormal.DotProduct(lineDirection);
+
+            return linePoint + lineParameter * lineDirection;
         }
     }
 }
