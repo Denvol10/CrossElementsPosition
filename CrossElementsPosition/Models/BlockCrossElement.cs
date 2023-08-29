@@ -36,5 +36,14 @@ namespace CrossElementsPosition.Models
 
             return markupCentralPoint;
         }
+
+        public IEnumerable<Line> GetMarkupPlanes()
+        {
+            Options options = new Options();
+            var geometryInstance = MarkupElement.get_Geometry(options).First() as GeometryInstance;
+            var geometry = geometryInstance.GetInstanceGeometry().OfType<Line>();
+
+            return geometry;
+        }
     }
 }

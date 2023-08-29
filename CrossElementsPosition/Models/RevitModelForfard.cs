@@ -97,9 +97,12 @@ namespace CrossElementsPosition
             using(Transaction trans = new Transaction(Doc, "Test Points Created"))
             {
                 trans.Start();
-                var blockCrossElem = blockCrossElements.ElementAt(5);
-                Doc.FamilyCreate.NewReferencePoint(blockCrossElem.GetMarkupCentralPoint());
-                Doc.FamilyCreate.NewReferencePoint(blockCrossElem.GetBlockCentralPoint());
+                var blockCrossElem = blockCrossElements.ElementAt(0);
+                var lines = blockCrossElem.GetMarkupPlanes();
+                foreach(var line in lines)
+                {
+                    Doc.FamilyCreate.NewReferencePoint(line.Evaluate(0.5, true));
+                }
 
                 trans.Commit();
             }
