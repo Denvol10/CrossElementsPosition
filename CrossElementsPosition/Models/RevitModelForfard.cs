@@ -87,15 +87,22 @@ namespace CrossElementsPosition
         #region Получение положения поперечных элементов
         public void GetCrossElementsPosition()
         {
+            var blockCrossElements = new List<BlockCrossElement>();
             foreach (var block in BlockElements)
             {
-                double distance = RevitGeometryUtils.GetDistanceBetweenElements(block, MarkupElements.First(), Doc);
+                var blockCrossElement = new BlockCrossElement(Doc, block, MarkupElements);
+                blockCrossElements.Add(blockCrossElement);
             }
 
-            //foreach(var markup in MarkupElements)
-            //{
-            //    double distance = RevitGeometryUtils.GetDistanceBetweenElements(BlockElements.First(), markup, Doc);
-            //}
+            using(Transaction trans = new Transaction(Doc, "Test Points Created"))
+            {
+                trans.Start();
+                var blockCrossElem = blockCrossElements.ElementAt(5);
+                Doc.FamilyCreate.NewReferencePoint(blockCrossElem.GetMarkupCentralPoint());
+                Doc.FamilyCreate.NewReferencePoint(blockCrossElem.GetBlockCentralPoint());
+
+                trans.Commit();
+            }
         }
         #endregion
     }

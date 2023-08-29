@@ -83,28 +83,8 @@ namespace CrossElementsPosition.Models
             return elemIds;
         }
 
-        public static double GetDistanceBetweenElements(Element blockElem, Element markupElem, Document doc)
-        {
-            // Получение центральной точки для блока
-            Line blockAxis = GetBlockAxis(doc, blockElem);
-            XYZ blockCentralPoint = blockAxis.Evaluate(0.5, true);
-
-            // Получение центральной точки для элемента разметки
-            var markupLocation = markupElem.Location as LocationCurve;
-            Curve markupCurve = markupLocation.Curve;
-            XYZ markupCentralPoint = markupCurve.Evaluate(0.5, true);
-
-            using(Transaction trans = new Transaction(doc, "Create Test Points"))
-            {
-                trans.Start();
-                doc.FamilyCreate.NewReferencePoint(blockCentralPoint);
-                trans.Commit();
-            }
-
-            return blockCentralPoint.DistanceTo(markupCentralPoint);
-        }
-
-        private static Line GetBlockAxis(Document doc, Element blockElem)
+        // Получение линии по низу блока
+        public static Line GetBlockAxis(Document doc, Element blockElem)
         {
             var blockAdaptivePoints = AdaptiveComponentInstanceUtils.GetInstancePlacementPointElementRefIds(blockElem as FamilyInstance);
             var firstReferencePoint = doc.GetElement(blockAdaptivePoints.FirstOrDefault()) as ReferencePoint;
@@ -120,6 +100,39 @@ namespace CrossElementsPosition.Models
             Line blockAxis = Line.CreateBound(firstPoint, secondBlockCurvePoint);
 
             return blockAxis;
+        }
+
+        // Получить ближайший элемент разметки
+        public static Element GetClosestMarkupElement(Document doc, Element blockElem, IEnumerable<Element> markupElems)
+        {
+            double minDistance = double.PositiveInfinity;
+            Element closestMarkupElem = null;
+            foreach(var markupElem in markupElems)
+            {
+                double distance = GetDistanceBetweenElements(doc, blockElem, markupElem);
+                if(distance < minDistance)
+                {
+                    closestMarkupElem = markupElem;
+                    minDistance = distance;
+                }
+            }
+
+            return closestMarkupElem;
+        }
+
+        // Получить расстояние между блоком и элементом разметки
+        private static double GetDistanceBetweenElements(Document doc, Element blockElem, Element markupElem)
+        {
+            // Получение центральной точки для блока
+            Line blockAxis = GetBlockAxis(doc, blockElem);
+            XYZ blockCentralPoint = blockAxis.Evaluate(0.5, true);
+
+            // Получение центральной точки для элемента разметки
+            var markupLocation = markupElem.Location as LocationCurve;
+            Curve markupCurve = markupLocation.Curve;
+            XYZ markupCentralPoint = markupCurve.Evaluate(0.5, true);
+
+            return blockCentralPoint.DistanceTo(markupCentralPoint);
         }
     }
 }
