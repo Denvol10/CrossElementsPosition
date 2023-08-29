@@ -95,22 +95,14 @@ namespace CrossElementsPosition
                 blockCrossElements.Add(blockCrossElement);
             }
 
-            //string path = @"O:\Revit Infrastructure Tools\CrossElementsPosition\CrossElementsPosition\result.txt";
-            //using(StreamWriter sw = new StreamWriter(path, false, Encoding.Default))
-            //{
-            //    foreach(var block in blockCrossElements)
-            //    {
-            //        sw.WriteLine(block.CountCrossSection);
-            //    }
-            //}
-
-            using (Transaction trans = new Transaction(Doc, "Test Points Created"))
+            using (Transaction trans = new Transaction(Doc, "Set Cross Section Position"))
             {
                 trans.Start();
-                var blockCrossElem = blockCrossElements.ElementAt(6);
-                blockCrossElem.HideUnusedCrossSection();
-                blockCrossElem.SetCrossSectionParameters();
-
+                foreach(var blockCrossElem in blockCrossElements)
+                {
+                    blockCrossElem.HideUnusedCrossSection();
+                    blockCrossElem.SetCrossSectionParameters();
+                }
                 trans.Commit();
             }
         }
