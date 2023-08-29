@@ -15,6 +15,7 @@ namespace CrossElementsPosition.Models
         public Line BlockAxis { get; set; }
         public Element MarkupElement { get; set; }
         public int CountCrossSection { get; set; }
+        public List<double> BlockCrossSectionParameters { get; set; }
 
         public BlockCrossElement(Document doc, Element blockElement, List<Element> markupElements)
         {
@@ -22,44 +23,15 @@ namespace CrossElementsPosition.Models
             BlockAxis = RevitGeometryUtils.GetBlockAxis(doc, blockElement);
             MarkupElement = RevitGeometryUtils.GetClosestMarkupElement(doc, blockElement, markupElements);
             CountCrossSection = GetCountCrossSection();
+            BlockCrossSectionParameters = GetIntersectParametersForBlock();
         }
 
-        public XYZ GetBlockCentralPoint()
-        {
-            XYZ centralPoint = BlockAxis.Evaluate(0.5, true);
-
-            return centralPoint;
-        }
-
-        public XYZ GetMarkupCentralPoint()
-        {
-            var markupLocation = MarkupElement.Location as LocationCurve;
-            Curve markupCurve = markupLocation.Curve;
-            XYZ markupCentralPoint = markupCurve.Evaluate(0.5, true);
-
-            return markupCentralPoint;
-        }
-
-        public List<XYZ> GetIntersectPointsOnBlock()
-        {
-            var points = new List<XYZ>();
-            var planes = this.GetMarkupPlanes();
-
-            foreach (var plane in planes)
-            {
-                double parameter;
-                XYZ point = LinePlaneIntersection(BlockAxis, plane, out parameter);
-                points.Add(point);
-            }
-
-            return points;
-        }
-
+        // Скрыть поперечные элементы блока изходя из количества линий элемента маркировки
         public void HideUnusedCrossSection()
         {
             var parameters = BlockElement.Parameters;
             var visibleParameters = new List<(Parameter Parameter, int Number)>();
-            foreach(Parameter parameter in parameters)
+            foreach (Parameter parameter in parameters)
             {
                 string parameterName = parameter.Definition.Name;
                 if (parameterName.Contains("Ребро") && parameterName.Contains("Видимость"))
@@ -71,11 +43,50 @@ namespace CrossElementsPosition.Models
 
             visibleParameters = visibleParameters.OrderBy(p => p.Number).ToList();
 
-            for(int i = visibleParameters.Count - 1; i >= CountCrossSection; i--)
+            for (int i = visibleParameters.Count - 1; i >= CountCrossSection; i--)
             {
                 var hideParameter = visibleParameters.ElementAt(i);
                 hideParameter.Parameter.Set(0);
             }
+        }
+
+        // Присвоить нормализованные значения положения поперечных элементов
+        public void SetCrossSectionParameters()
+        {
+            var parameters = BlockElement.Parameters;
+            var positionParameters = new List<(Parameter Parameter, int Number)>();
+
+            foreach (Parameter parameter in parameters)
+            {
+                string parameterName = parameter.Definition.Name;
+                if (parameterName.Contains("Ребро") && parameterName.Contains("Положение"))
+                {
+                    var number = int.Parse(parameterName.Split('_').ElementAt(1));
+                    positionParameters.Add((parameter, number));
+                }
+            }
+
+            positionParameters = positionParameters.OrderBy(p => p.Number).ToList();
+
+            for (int i = 0; i < CountCrossSection; i++)
+            {
+                positionParameters.ElementAt(i).Parameter.Set(BlockCrossSectionParameters.ElementAt(i));
+            }
+        }
+
+        private List<double> GetIntersectParametersForBlock()
+        {
+            var parameters = new List<double>();
+            var planes = this.GetMarkupPlanes();
+
+            foreach (var plane in planes)
+            {
+                double parameter;
+                XYZ point = LinePlaneIntersection(BlockAxis, plane, out parameter);
+                parameters.Add(parameter);
+            }
+
+            return parameters;
         }
 
         private int GetCountCrossSection()

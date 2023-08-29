@@ -109,6 +109,7 @@ namespace CrossElementsPosition
                 trans.Start();
                 var blockCrossElem = blockCrossElements.ElementAt(6);
                 blockCrossElem.HideUnusedCrossSection();
+                blockCrossElem.SetCrossSectionParameters();
 
                 trans.Commit();
             }
