@@ -97,7 +97,7 @@ namespace CrossElementsPosition
             using(Transaction trans = new Transaction(Doc, "Test Points Created"))
             {
                 trans.Start();
-                var blockCrossElem = blockCrossElements.ElementAt(3);
+                var blockCrossElem = blockCrossElements.ElementAt(6);
                 var points = blockCrossElem.GetIntersectPointsOnBlock();
                 foreach(var point in points)
                 {

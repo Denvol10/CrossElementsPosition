@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.DB;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,11 +42,18 @@ namespace CrossElementsPosition.Models
         {
             var points = new List<XYZ>();
             var planes = this.GetMarkupPlanes();
-            foreach(var plane in planes)
+            string path = @"O:\Revit Infrastructure Tools\CrossElementsPosition\CrossElementsPosition\result.txt";
+            using(StreamWriter sw = new StreamWriter(path, false, Encoding.Default))
             {
-                XYZ point = LinePlaneIntersection(BlockAxis, plane, out _);
-                points.Add(point);
+                foreach (var plane in planes)
+                {
+                    double parameter;
+                    XYZ point = LinePlaneIntersection(BlockAxis, plane, out parameter);
+                    sw.WriteLine(parameter);
+                    points.Add(point);
+                }
             }
+
 
             return points;
         }
@@ -75,11 +83,13 @@ namespace CrossElementsPosition.Models
          /* Пересечение линии и плоскости
          * (преобразует линию в вектор, поэтому пересекает любую линию не параллельную плоскости)
          */
-        private static XYZ LinePlaneIntersection(Line line, Plane plane, out double lineParameter)
+        private static XYZ LinePlaneIntersection(Line line, Plane plane, out double lineParameterNormalized)
         {
             XYZ planePoint = plane.Origin;
             XYZ planeNormal = plane.Normal;
             XYZ linePoint = line.GetEndPoint(0);
+            double lineParameter = double.NaN;
+            lineParameterNormalized = double.NaN;
 
             XYZ lineDirection = (line.GetEndPoint(1) - linePoint).Normalize();
 
@@ -93,6 +103,8 @@ namespace CrossElementsPosition.Models
             lineParameter = (planeNormal.DotProduct(planePoint)
               - planeNormal.DotProduct(linePoint))
                 / planeNormal.DotProduct(lineDirection);
+
+            lineParameterNormalized = line.ComputeNormalizedParameter(lineParameter);
 
             return linePoint + lineParameter * lineDirection;
         }
